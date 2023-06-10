@@ -22,5 +22,6 @@ router.post('/loginCliente', userController.loginCliente);
 router.post('/registerCliente', userController.registerCliente);
 router.post('/create', userController.create, authController.verifyTokenAdmin);
 router.post('/edit/:id', userController.edit, authController.verifyTokenAdmin);
+router.post('/recuperarSenha', userController.recuperarSenha);
 
 module.exports = router;
