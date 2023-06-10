@@ -34,7 +34,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger/swagger.json')
 const usersRouter = require('./routes/users');

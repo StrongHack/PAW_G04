@@ -3,6 +3,7 @@ const { isDate } = require('validator');
 const { isNumeric } = require('validator');
 
 const eventSchema = new mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
     name: {
       type: String, 
       required: true
