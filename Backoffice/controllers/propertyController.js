@@ -31,6 +31,26 @@ propertyController.showAll = function(req, res) {
 };
 
 
+propertyController.showAllJSON = function(req, res) {
+      Property.find().exec(function(err, properties) {
+        if (err) {
+          console.log('Error reading properties: ', err);
+          res.status(500).json({ error: 'Error reading properties information' });
+        } else {
+          res.json(properties);
+        }
+      });
+    }
+
+    propertyController.getPropertyCount = (req, res, next) => {
+      Property.countDocuments({}, (err, count) => {
+        if (err) {
+          return next(err);
+        }
+        res.json(count);
+      });
+    }
+
 // mostra 1 imovel por id
 propertyController.show = function(req, res) {
   const propertyId = req.params.id;
@@ -64,6 +84,23 @@ propertyController.show = function(req, res) {
   };
   });
 };
+
+propertyController.showJSON = function(req, res) {
+  const propertyId = req.params.id;
+      Property.findOne({ _id: propertyId }).exec((err, dbproperties) => {
+        if (err) {
+          console.log('Error reading property: ', err);
+          res.status(500).json({ error: 'Error reading property information' });
+        } else {
+          let imageSrc = null;
+          if (dbproperties && dbproperties.photos && dbproperties.photos.data) {
+            const imageData = dbproperties.photos.data.toString('base64');
+            imageSrc = `data:${dbproperties.photos.contentType};base64,${imageData}`;
+          }
+              res.status(200).json({ dbproperties });
+            }
+          });
+        };
 
 //Mostra o formulario para criar um imovel
 propertyController.formCreate = function(req,res){
