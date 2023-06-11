@@ -1,6 +1,4 @@
 const User = require('../models/user');
-var mongoose = require('mongoose');
-const authController = require('./authController');
 const Employee = require("../models/employee");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -8,7 +6,28 @@ const config = require('../authconfig');
 const nodemailer = require('nodemailer');
 
 
-const userController = {};
+const userController = {
+ 
+  getAuthenticatedUser: function(req, res, next) {
+    const token = req.headers['authorization'];
+  
+    if (!token) {
+      return res.status(401).json({ message: 'Token de autenticação não fornecido.' });
+    }
+  
+    jwt.verify(token, config.secret, function(err, decoded) {
+      if (err) {
+        return res.status(500).json({ message: 'Falha ao verificar o token de autenticação.' });
+      }
+  
+      // O token é válido, então você pode acessar os dados do usuário decodificados
+      req.authenticatedUser = decoded;
+  
+      next();
+    });
+  },
+  
+};
 
 userController.registerCliente =  async function(req, res) {
 
@@ -48,14 +67,70 @@ userController.loginCliente = function(req, res){
 
       // if user is found and password is valid
       // create a token
-      var token = jwt.sign({ id: user._id }, config.secret, {
+      var token = jwt.sign({ id: user._id, role: user.role }, config.secret, {
       expiresIn: 86400 // expires in 24 hours
       });
-
+      res.cookie('access_token', token, { maxAge: 86400 * 1000 });
       // return the information including token as JSON
       res.status(200).send({ auth: true, token: token });
 });
 }
+
+
+
+
+userController.profile = function(req, res) {
+  User.findOne({ _id: req.authenticatedUser.id }, function(err, user) {
+    if (err) {
+      return res.status(500).send('There was a problem finding the user.');
+    }
+    if (!user) {
+      return res.status(404).send('No user found.');
+    }
+
+    res.status(200).send(user);
+  });
+};
+
+
+userController.editProfile = function (req, res) {
+  const { name, email, password } = req.body;
+  const hashedPassword = bcrypt.hashSync(password, 8);
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, email, password: hashedPassword },
+    { new: true, useFindAndModify: false },
+    function (err, user) {
+      if (err) {
+        return res.status(500).send('There was a problem updating the user.');
+      }
+      res.status(200).send(user);
+    }
+  );
+};
+
+userController.changePassword = function (req, res) {
+  const userId = req.params.id;
+  const newPassword = req.body.password;
+
+  const hashedPassword = bcrypt.hashSync(newPassword, 8);
+
+  User.findByIdAndUpdate(
+    userId,
+    { password: hashedPassword },
+    { new: true, useFindAndModify: false },
+    function (err, user) {
+      if (err) {
+        return res.status(500).send('Houve um problema ao atualizar a senha do usuário.');
+      }
+      res.status(200).send('Senha do usuário atualizada com sucesso.');
+    }
+  );
+};
+
+
+
 
 // mostra todos os Clientes
 userController.showAll = function(req, res) {
@@ -89,6 +164,8 @@ userController.show = function(req, res){
         }
     })
 }
+
+
 
 //Mostra o formulário para criar um novo cliente
 userController.formCreate = function(req,res){
@@ -237,5 +314,29 @@ function enviarEmailSenha(email, novaSenha) {
     }
   });
 }
+
+
+
+
+ 
+userController.verifyTokenClient = function(req, res, next) {
+
+  // check header or url parameters or post parameters for token
+  var token = req.headers['x-access-token'];
+  if (!token) 
+    return res.status(403).send({ auth: false, message: 'No token provided.' });
+
+  // verifies secret and checks exp
+  jwt.verify(token, config.secret, function(err, decoded) {      
+    if (err) 
+      return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });    
+
+    // if everything is good, save to request for use in other routes
+    req.userId = decoded.id;
+    next();
+  });
+
+}
+
 
 module.exports = userController;

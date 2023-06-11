@@ -28,6 +28,18 @@ eventController.showAll = function(req, res) {
   });
 };
 
+eventController.showAllJSON = function(req, res) {
+      Event.find().exec(function(err, dbevents) {
+        if (err) {
+          console.log('Error reading properties: ', err);
+          req.flash('error', 'Error reading properties information');
+          res.redirect('/error');
+        } else {
+          res.json(dbevents);
+        }
+      });
+    }
+
 // mostra 1 evento por id
 eventController.show = function(req, res) {
   Employee.findOne({ _id: req.employeeId }, function(err, employee) {
@@ -50,6 +62,22 @@ eventController.show = function(req, res) {
     }
   });
 };
+  });
+};
+
+eventController.showJSON = function(req, res) {
+  Event.findOne({ _id: req.params.id }).exec((err, dbevents) => {
+    if (err) {
+      console.log('Error reading event: ', err);
+      res.redirect('/pesges-error-404');
+    } else {
+      let imageSrc = null;
+      if (dbevents && dbevents.photos && dbevents.photos.data) {
+        const imageData = dbevents.photos.data.toString('base64');
+        imageSrc = `data:${dbevents.photos.contentType};base64,${imageData}`;
+      }
+      res.status(200).json({ dbevents });
+    }
   });
 };
 
