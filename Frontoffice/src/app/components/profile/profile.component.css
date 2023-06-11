@@ -2142,3 +2142,34 @@ footer .copyright-footer {
 footer .credits {
   font-size: 14px;
 }
+
+h1 {
+  font-size: 24px;
+}
+
+span {
+  font-size: 16px;
+  color: gray;
+}
+
+.button1 {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: darkred;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+label {
+  font-size: 14px;
+  margin-top: 10px;
+  display: block;
+}
+
+p {
+  font-size: 14px;
+  color: #f44336;
+  margin-top: 10px;
+}

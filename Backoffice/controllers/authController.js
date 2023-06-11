@@ -5,7 +5,6 @@ const config = require('../authconfig');
 const cors = require('cors');
 const Ticket = require("../models/ticket");
 const User = require("../models/user");
-var userController = require('../controllers/userController');
 
 const authController = {};
 
@@ -53,6 +52,7 @@ console.log(req.body);
   });
 };
 
+//registo de um novo utilizador
 authController.register = async function(req, res){
 
 console.log(req.body.email);
@@ -85,40 +85,6 @@ console.log(req.body);
       res.render('sucess');
   });
 };
-
-/*userController.registerCliente = async function(req, res){
-
-  console.log(req.body.email);
-  console.log(req.body.password);
-  console.log(req.body);
-  
-    let user = await User.findOne({ email: req.body.email });
-    
-    if (user) {
-      return res.status(400).json({ message: "Email already exists" });
-    }
-  
-    var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-  
-    User.create({
-        username : req.body.username,
-        email : req.body.email,
-        password : hashedPassword,
-        role: "Cliente",
-    }, 
-    function (err, user) {
-        if (err) return res.status(500).json(err);
-  
-        var token = jwt.sign({ id: user._id }, config.secret, {
-        expiresIn: 86400000 // expires in 24 hours
-        });
-  
-        res.cookie('access_token', token, { maxAge: 86400 * 1000 });
-  
-        res.render('sucess');
-    });
-  };
-*/
 
 //Pagina de Dashboard
 authController.dashboard = function(req, res) {
@@ -163,9 +129,6 @@ authController.dashboard = function(req, res) {
       });
   });
 };
-
-
-
 
 //Pagina de Login
 authController.loginForm = function(req, res){

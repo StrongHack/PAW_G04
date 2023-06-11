@@ -28,6 +28,7 @@ eventController.showAll = function(req, res) {
   });
 };
 
+//API para mostrar todos os eventos
 eventController.showAllJSON = function(req, res) {
       Event.find().exec(function(err, dbevents) {
         if (err) {
@@ -65,6 +66,7 @@ eventController.show = function(req, res) {
   });
 };
 
+//API para mostrar 1 evento por id
 eventController.showJSON = function(req, res) {
   Event.findOne({ _id: req.params.id }).exec((err, dbevents) => {
     if (err) {

@@ -6,29 +6,29 @@ const config = require('../authconfig');
 const nodemailer = require('nodemailer');
 
 
-const userController = {
+const userController = {};
  
-  getAuthenticatedUser: function(req, res, next) {
-    const token = req.headers['authorization'];
-  
-    if (!token) {
-      return res.status(401).json({ message: 'Token de autenticação não fornecido.' });
+  //Logica de autenticação
+  userController.getAuthenticatedUser = function(req, res, next) {
+  const token = req.headers['authorization'];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token de autenticação não fornecido.' });
+  }
+
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) {
+      return res.status(500).json({ message: 'Falha ao verificar o token de autenticação.' });
     }
-  
-    jwt.verify(token, config.secret, function(err, decoded) {
-      if (err) {
-        return res.status(500).json({ message: 'Falha ao verificar o token de autenticação.' });
-      }
-  
-      // O token é válido, então você pode acessar os dados do usuário decodificados
-      req.authenticatedUser = decoded;
-  
-      next();
-    });
-  },
-  
+
+    // O token é válido, então você pode acessar os dados do usuário decodificados
+    req.authenticatedUser = decoded;
+
+    next();
+  });
 };
 
+//Logica de registo de um novo utilizador
 userController.registerCliente =  async function(req, res) {
 
   let user = await User.findOne({ email: req.body.email });
@@ -55,6 +55,7 @@ userController.registerCliente =  async function(req, res) {
   });
 };
 
+//logica de login de um utilizador
 userController.loginCliente = function(req, res){
   User.findOne({ email: req.body.email }, function (err, user) {
       if (err) return res.status(500).send('Error on the server.');
@@ -78,7 +79,7 @@ userController.loginCliente = function(req, res){
 
 
 
-
+//API para obter o perfil de um utilizador
 userController.profile = function(req, res) {
   User.findOne({ _id: req.authenticatedUser.id }, function(err, user) {
     if (err) {
@@ -92,42 +93,74 @@ userController.profile = function(req, res) {
   });
 };
 
-
+//API para editar o perfil de um utilizador
 userController.editProfile = function (req, res) {
-  const { name, email, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 8);
+  const { name, email } = req.body;
+  const userId = req.authenticatedUser.id; // Obtém o ID do usuário autenticado
 
   User.findByIdAndUpdate(
-    req.user._id,
-    { name, email, password: hashedPassword },
+    userId,
+    { name, email },
     { new: true, useFindAndModify: false },
     function (err, user) {
       if (err) {
-        return res.status(500).send('There was a problem updating the user.');
+        return res.status(500).send('Houve um problema ao atualizar o perfil do usuário.');
       }
+
       res.status(200).send(user);
     }
   );
 };
 
-userController.changePassword = function (req, res) {
-  const userId = req.params.id;
-  const newPassword = req.body.password;
+//API para alterar a password de um utilizador
+userController.changePassword = function(req, res) {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.authenticatedUser.id; 
 
-  const hashedPassword = bcrypt.hashSync(newPassword, 8);
-
-  User.findByIdAndUpdate(
-    userId,
-    { password: hashedPassword },
-    { new: true, useFindAndModify: false },
-    function (err, user) {
-      if (err) {
-        return res.status(500).send('Houve um problema ao atualizar a senha do usuário.');
-      }
-      res.status(200).send('Senha do usuário atualizada com sucesso.');
+  User.findById(userId, function(err, user) {
+    if (err) {
+      return res.status(500).send('Houve um problema ao buscar o usuário.');
     }
-  );
+
+    if (!user) {
+      return res.status(404).send('Usuário não encontrado.');
+    }
+
+    const passwordMatch = bcrypt.compareSync(currentPassword, user.password);
+    if (!passwordMatch) {
+      return res.status(401).send('A senha atual não corresponde à senha armazenada.');
+    }
+
+    const hashedPassword = bcrypt.hashSync(newPassword, 8);
+
+    User.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword },
+      { new: true, useFindAndModify: false },
+      function(err, user) {
+        if (err) {
+          return res.status(500).send('Houve um problema ao alterar a senha do usuário.');
+        }
+
+        res.status(200).send({ message: 'Senha alterada com sucesso!' });
+      }
+    );
+  });
 };
+
+//API para apagar o perfil de um utilizador
+userController.deleteProfile = function(req, res) {
+  const userId = req.authenticatedUser.id; // Obtém o ID do usuário autenticado
+
+  User.findByIdAndDelete(userId, function(err, user) {
+    if (err) {
+      return res.status(500).send('Houve um problema ao excluir o perfil do usuário.');
+    }
+
+    res.status(200).send({ message: 'Perfil excluído com sucesso!' });
+  });
+};
+
 
 
 

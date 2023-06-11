@@ -4,16 +4,14 @@ var propertyController = require('../controllers/propertyController');
 var authController = require('../controllers/authController');
 const Property = require('../models/property');
 
-//middleware
-
 //get
-router.get('/', authController.verifyToken, propertyController.showAll);
+router.get('/', authController.verifyToken, authController.verifyTokenAdmin, propertyController.showAll);
 router.get('/api', propertyController.showAllJSON);
-router.get('/show/:id', authController.verifyToken, propertyController.show);
+router.get('/show/:id', authController.verifyToken, authController.verifyTokenAdmin, propertyController.show);
 router.get('/api/show/:id?', propertyController.showJSON);
-router.get('/create', authController.verifyToken, propertyController.formCreate, authController.verifyTokenAdmin);
-router.get('/edit/:id', authController.verifyToken, propertyController.formEdit, authController.verifyTokenAdmin);
-router.get('/delete/:id', authController.verifyToken, propertyController.delete, authController.verifyTokenAdmin);
+router.get('/create', authController.verifyToken, authController.verifyTokenAdmin, propertyController.formCreate);
+router.get('/edit/:id', authController.verifyToken, authController.verifyTokenAdmin, propertyController.formEdit);
+router.get('/delete/:id', authController.verifyToken, authController.verifyTokenAdmin, propertyController.delete);
 router.get('/image/:id', (req, res) => {
     const propertyId = req.params.id;
   
@@ -37,7 +35,7 @@ router.get('/image/:id', (req, res) => {
   });
 
 //post
-router.post('/create', authController.verifyToken, propertyController.create,  authController.verifyTokenAdmin);
-router.post('/edit/:id', authController.verifyToken, propertyController.edit, authController.verifyTokenAdmin);
+router.post('/create', authController.verifyToken, authController.verifyTokenAdmin, propertyController.create);
+router.post('/edit/:id', authController.verifyToken, authController.verifyTokenAdmin, propertyController.edit);
 
 module.exports = router;

@@ -30,7 +30,7 @@ propertyController.showAll = function(req, res) {
   });
 };
 
-
+//API para mostrar todos os imoveis
 propertyController.showAllJSON = function(req, res) {
       Property.find().exec(function(err, properties) {
         if (err) {
@@ -85,6 +85,7 @@ propertyController.show = function(req, res) {
   });
 };
 
+//API para mostrar 1 imovel por id
 propertyController.showJSON = function(req, res) {
   const propertyId = req.params.id;
       Property.findOne({ _id: propertyId }).exec((err, dbproperties) => {

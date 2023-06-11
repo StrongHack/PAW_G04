@@ -6,13 +6,13 @@ var authController = require('../controllers/authController');
 const Event = require('../models/event');
 
 //get
-router.get('/', authController.verifyToken, eventController.showAll);
+router.get('/', authController.verifyToken, authController.verifyToken, eventController.showAll);
 router.get('/api', eventController.showAllJSON);
 router.get('/show/:id', authController.verifyToken, eventController.show);
 router.get('/api/show/:id?', eventController.showJSON);
-router.get('/create/:propertyId', authController.verifyToken, eventController.formCreate, authController.verifyTokenAdmin);
-router.get('/edit/:id', authController.verifyToken, eventController.formEdit, authController.verifyTokenAdmin);
-router.get('/delete/:id', authController.verifyToken, eventController.delete, authController.verifyTokenAdmin);
+router.get('/create/:propertyId', authController.verifyToken, authController.verifyTokenAdmin, eventController.formCreate);
+router.get('/edit/:id', authController.verifyToken, authController.verifyTokenAdmin, eventController.formEdit);
+router.get('/delete/:id', authController.verifyToken, authController.verifyTokenAdmin, eventController.delete);
 router.get('/image/:id', (req, res) => {
     const eventId = req.params.id;
   
@@ -36,9 +36,9 @@ router.get('/image/:id', (req, res) => {
   });
 
 //post
-router.post('/create/:id', authController.verifyToken, eventController.create, authController.verifyTokenAdmin);
-router.post('/edit/:id', authController.verifyToken, eventController.edit, authController.verifyTokenAdmin);
-router.post('/buy-ticket', authController.verifyToken, ticketController.create, authController.verifyTokenAdmin);
-router.post('/api/buy-ticket', ticketController.create);
+router.post('/create/:id', authController.verifyToken, authController.verifyTokenAdmin, eventController.create);
+router.post('/edit/:id', authController.verifyToken, authController.verifyTokenAdmin, eventController.edit);
+router.post('/buy-ticket', authController.verifyToken, authController.verifyTokenAdmin, ticketController.create);
+router.post('/api/buy-ticket', ticketController.createJSON);
 
 module.exports = router;

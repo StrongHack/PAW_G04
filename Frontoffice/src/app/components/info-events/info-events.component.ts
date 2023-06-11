@@ -15,6 +15,8 @@ export class InfoEventsComponent implements OnInit {
   event: Event | undefined;
   ticketQuantity: number = 1;
   userEmail: string = '';
+  sessionId: string = '';
+  sessionDetails: any = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -81,19 +83,23 @@ export class InfoEventsComponent implements OnInit {
   buyTickets(): void {
     this.clientService.getProfile().subscribe(
       (response) => {
-        const userEmail = response.email; 
-        
+        const userEmail = response.email;
+  
         if (this.event && this.event._id) {
           this.eventService.buyTicket(this.event._id, userEmail, this.ticketQuantity)
             .subscribe(
               (response: any) => {
                 console.log('Ticket bought:', response);
-                this.router.navigate(['/profile']);
+                if (response.url) {
+                  window.location.href = response.url;
+                } else {
+                  this.router.navigate(['/profile']);
+                }
               },
               (error) => {
                 console.log('API Error:', error);
-                this.router.navigate(['/profile']);
-              }
+                  this.router.navigate(['/profile']);
+                }
             );
         } else {
           console.warn('Invalid event object or missing _id');
@@ -104,7 +110,7 @@ export class InfoEventsComponent implements OnInit {
       }
     );
   }
-
+  
   logout(): void {
     this.authenticationService.logout();
     this.router.navigate(['/homepage']);

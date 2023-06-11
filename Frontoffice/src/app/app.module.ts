@@ -14,8 +14,6 @@ import { InfoPropertiesComponent } from './components/info-properties/info-prope
 import { ListPropertiesComponent } from './components/list-properties/list-properties.component';
 import { ListEventsComponent } from './components/list-events/list-events.component';
 
-
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -48,8 +46,7 @@ import { RecoverPasswordComponent } from './components/recover-password/recover-
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
-    HttpClientModule
-
+    HttpClientModule,
   ],
   providers: [AuthenticationService, CookieService, AuthGuard,
 
